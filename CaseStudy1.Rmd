@@ -2,9 +2,7 @@
 title: "Case Study 1"
 author: "Ruby Vazquez Pena"
 date: "11/1/2016"
-output: 
-html_document:
-       keep_md: true
+output: github_document
 ---
 
 ## Introduction
