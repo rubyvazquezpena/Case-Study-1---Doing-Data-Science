@@ -1,0 +1,127 @@
+---
+title: "Case Study 1"
+author: "Ruby Vazquez Pena"
+date: "11/1/2016"
+output: 
+html_document:
+       keep_md: true
+---
+
+## Introduction
+### We are analyzing 189 countries' economies with confirmed Gross Domestic Product (GDP) estimates (in millions of dollars) and GDP rankings. We seek to analyze whether GPD estimates differ between the 5 income groups that all 189 countries fall into. We will utilize statistics, and visual graphic to analyze and understand the given data.
+
+###Setup and importing the data.
+```{r}
+#Setting my directory to where my data files are located.
+setwd("/Users/rubyvazquez/Desktop/SMU/Doing Data Science/Case Study 1")
+getwd()
+```
+
+```{r}
+#Importing first data file Country.
+Country<-read.csv("Country.csv", header = TRUE, sep=",",na.strings=c("", "NA"))
+head(Country) #Checking the data.
+```
+
+```{r}
+#Importing second data file GDP.
+#Setting column names, for a cleaner import.
+names<- c("CountryCode","Ranking", "Delete", "Economy", "GDP","Delete","Delete","Delete","Delete","Delete")
+#Importing the second data file with the set column names.
+GDPdata<-read.csv("GDP.csv", header = FALSE, sep=",", skip=5, col.names = names,na.strings=c("", "NA"))
+head(GDPdata)#Checking the data.
+```
+
+```{r}
+#Cleansing GDP data.
+#Deleting columns filled of NAs or blank.
+GDPdata$Delete<-NULL
+GDPdata$Delete.1<-NULL
+GDPdata$Delete.2<-NULL
+GDPdata$Delete.3<-NULL
+GDPdata$Delete.4<-NULL
+GDPdata$Delete.5<-NULL
+##I will subset GDP to only the confirmed GDP estimates, which are those with a ranking.
+GDPdata<-GDPdata[1:190,]
+head(GDPdata)#Checking the data.
+```
+
+```{r}
+##Calculating the Number of missing value from deleting the above variables.
+##Deleted 6 variables and each variable has 326 obs.
+6*326
+```
+
+###Question 1
+#### Merge the data based on the country shortcode. How many of the IDs match?
+```{r}
+#Question 1
+#Merge the data based on the country shortcode.
+Mergeddata<-merge(Country, GDPdata, by="CountryCode")
+head(Mergeddata)
+```
+
+```{r}
+#Number of IDs that matched
+dim(Mergeddata)[1]
+```
+#### Even though both datasets had different dimensions, we were able to merge them into a dataset of 189 rows and 35 columns
+
+###Question 2
+####Sort the data frame in ascending order by GDP (so United States is last). What is the 13th country in the resulting data frame?
+```{r}
+#Question 2
+##Converting GDP values to numeric values.
+Mergeddata$GDP<-as.character(Mergeddata$GDP)
+Mergeddata$GDP<-as.numeric(gsub(",", "", Mergeddata$GDP))
+##Sorting data by GDP.
+Sorteddata<-Mergeddata[order(Mergeddata$GDP),]
+#The 13th country on the list
+Sorteddata[13,1:2]
+```
+###From the above we can see that after sorting, St. Kitts and Nevis is the 13th country on our list
+
+###Question 3
+####What are the average GDP rankings for the "High income: OECD" and "High income: nonOECD" groups?
+```{r}
+#Question 3
+#Subsetting the data where Income group equal High income: OECD and taking the mean.
+mean(as.numeric(as.character(Mergeddata[Mergeddata$Income.Group =="High income: OECD",]$Ranking)))
+#Subsetting the data where Income group equal High income: nonOECD and taking the mean.
+mean(as.numeric(as.character(Mergeddata[Mergeddata$Income.Group =="High income: nonOECD",]$Ranking)))
+```
+####From above, we know that the average between income groups, High income: OECD and High income: nonOECD differ by significantly.
+
+###Question 4
+####Plot the GDP for all of the countries. Use ggplot2 to color your plot by Income Group.
+```{r}
+#Question 4
+#Making sure I have ggplot2 installed.
+library("ggplot2")
+#Plotting GDP for all countries by Income.Group.
+ggplot(Mergeddata, aes(Income.Group, GDP),labels)+geom_point(aes(colour= factor(Mergeddata$Income.Group)))+
+ ggtitle("GDP for each Country")+ theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank())+
+  theme(legend.position="bottom")
+```
+####The graph above illustrates the variance in the GDP estimate each income group. We can see that the group High Income: OECD has more extreme values than all the other groups. We can also see that the Low Income group has GDP relatively near 0. 
+
+###Question 5
+####Cut the GDP ranking into 5 separate quantile groups. Make a table versus Income.Group.How many countries are Lower middle income but among the 38 nations with highest GDP?
+```{r}
+#Question 5
+##Making the 5 quartiles.
+breaks <- quantile(as.numeric(as.character(Mergeddata$Ranking)), probs = seq(0, 1, 0.2), na.rm = TRUE)
+##Making the quartiles a column in the data.
+Mergeddata$quantileGDP <- cut(as.numeric(as.character(Mergeddata$Ranking)), breaks = breaks)
+##Selecting the data that has Income.Group equal to Lower middle income.
+x<-Mergeddata[Mergeddata$Income.Group=="Lower middle income",]
+#Getting the number of countries in the Lower middle income group that are in each quartile.
+by(x, x$quantileGDP, nrow)
+```
+
+##Conclusion
+###From the analysis above we can see the group High income: OECD has a greater variance in GDP estimates than any other group, yet has a low mean ranking. We also found out that more Lower middle income country economies are in the higher quartile of GDP estimates. We found the mean ranking for groups High income: OECD and High income: nonOECD are 32.9667 and 91.91 respectively. Note that the USA has the highest GDP estimate and is ranked 1, and we can view it in the provided graph as the highest data point in the High income: OECD group. 
+
+
+
+
