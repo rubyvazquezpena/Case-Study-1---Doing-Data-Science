@@ -94,7 +94,7 @@ mean(as.numeric(as.character(Mergeddata[Mergeddata$Income.Group =="High income: 
 
 ###Question 4
 ####Plot the GDP for all of the countries. Use ggplot2 to color your plot by Income Group.
-```{r}
+```{r,}
 #Question 4
 #Making sure I have ggplot2 installed.
 library("ggplot2")
@@ -103,6 +103,7 @@ ggplot(Mergeddata, aes(Income.Group, GDP),labels)+geom_point(aes(colour= factor(
  ggtitle("GDP for each Country")+ theme(axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank())+
   theme(legend.position="bottom")
 ```
+
 ####The graph above illustrates the variance in the GDP estimate each income group. We can see that the group High Income: OECD has more extreme values than all the other groups. We can also see that the Low Income group has GDP relatively near 0. 
 
 ###Question 5
